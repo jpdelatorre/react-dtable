@@ -1,0 +1,55 @@
+{
+  "name": "react-dtable",
+  "version": "1.0.0",
+  "description": "Data table with built in pagination, column filtering and sorting implemented in React.",
+  "main": "lib/index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "dev": "babel src --watch --out-dir lib --source-maps inline",
+    "build": "babel src --out-dir lib --source-maps inline",
+    "test": "jest",
+    "test:watch": "npm test -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpdelatorre/react-dtable.git"
+  },
+  "keywords": [
+    "datatable",
+    "datagrid",
+    "react-datatable",
+    "bootstrap-datatable"
+  ],
+  "author": "jpdelatorre <jp.delatorre@gmail.com> (http://jpdelatorre.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jpdelatorre/react-dtable/issues"
+  },
+  "homepage": "https://github.com/jpdelatorre/react-dtable#readme",
+  "peerDependencies": {
+    "react": "^15.x.x"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.x.x",
+    "babel-loader": "^6.x.x",
+    "babel-preset-es2015": "^6.x.x",
+    "babel-preset-react": "^6.x.x",
+    "babel-preset-stage-0": "^6.x.x",
+    "bootstrap": "^3.x.x",
+    "css-loader": "^0.x.x",
+    "file-loader": "^0.x.x",
+    "jest": "^19.0.2",
+    "react": "^15.x.x",
+    "react-dom": "^15.x.x",
+    "style-loader": "^0.x.x",
+    "url-loader": "^0.x.x",
+    "webpack": "^2.x.x",
+    "webpack-dev-server": "^2.x.x"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "react"
+    ]
+  }
+}
