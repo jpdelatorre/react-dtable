@@ -26,10 +26,11 @@ class DataTable extends React.Component {
         element.type.name === 'Column'
       ) {
         //console.log(element.type.name);
-        const {label, field} = element.props || {};
+        const {label, field, filter} = element.props || {};
         this.columns.push({
           label,
           field,
+          filter,
         });
       } else {
         console.warn("Only 'Column' is a valid children");
@@ -84,7 +85,7 @@ class DataTable extends React.Component {
           }
           return (
             <th key={'column-filter-' + index}>
-              <input type="text" className="form-control" />
+              <input type="text" className="form-control" name={col.filter || col.field} onChange={e => this.filterColumn({ [e.target.name]: e.target.value })} />
             </th>
           );
         })}
@@ -140,7 +141,10 @@ class DataTable extends React.Component {
 
   sortColumn(sortBy) {}
 
-  filterColumn(filter) {}
+  filterColumn(filter) {
+    console.log('filtering...');
+    console.log(filter);
+  }
 
   applyFilter() {}
 
