@@ -59,7 +59,7 @@ class App extends React.Component {
             field="email"
             label="Email"
             labelClassName=""
-            filter="emailInput"
+            filter="email"
             filterClassName=""
             cell=""
             cellClassName=""

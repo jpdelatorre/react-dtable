@@ -12,6 +12,10 @@ class DataTable extends React.Component {
     this.numberOfPages = 1;
     this.totalItems = 0;
 
+    this.state = {
+      data: props.data,
+    };
+
     this.renderColumnLabels = this.renderColumnLabels.bind(this);
     this.renderColumnFilters = this.renderColumnFilters.bind(this);
     this.renderBody = this.renderBody.bind(this);
@@ -26,7 +30,7 @@ class DataTable extends React.Component {
         element.type.name === 'Column'
       ) {
         //console.log(element.type.name);
-        const {label, field, filter} = element.props || {};
+        const { label, field, filter } = element.props || {};
         this.columns.push({
           label,
           field,
@@ -36,6 +40,12 @@ class DataTable extends React.Component {
         console.warn("Only 'Column' is a valid children");
       }
     });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.data !== this.props.data) {
+      this.setState({ data: nextProps.data });
+    }
   }
 
   render() {
@@ -62,7 +72,7 @@ class DataTable extends React.Component {
             <th
               key={'column-label-' + index}
               onClick={e => console.log('sorting...')}
-              style={{cursor: 'pointer'}}
+              style={{ cursor: 'pointer' }}
             >
               {col.label}
             </th>
@@ -85,7 +95,12 @@ class DataTable extends React.Component {
           }
           return (
             <th key={'column-filter-' + index}>
-              <input type="text" className="form-control" name={col.filter || col.field} onChange={e => this.filterColumn({ [e.target.name]: e.target.value })} />
+              <input
+                type="text"
+                className="form-control"
+                name={col.filter || col.field}
+                onChange={e => this.filterColumn(e.target.name, e.target.value)}
+              />
             </th>
           );
         })}
@@ -96,21 +111,30 @@ class DataTable extends React.Component {
   renderBody() {
     const rowElement = [];
 
-    if (this.props.data.length < 1) {
+    if (this.state.data.length < 1) {
       return null;
     }
 
-    for (let rowIdx = 0; rowIdx < this.itemsPerPage; rowIdx++) {
+    const numberOfItemsToDisplay = this.state.data.length < this.itemsPerPage
+      ? this.state.data.length
+      : this.itemsPerPage;
+    //debugger;
+    for (let rowIdx = 0; rowIdx < numberOfItemsToDisplay; rowIdx++) {
       rowElement.push(
         <tr key={`row-${rowIdx}`}>
           {this.columns.map((col, idx) => {
             console.log(col.field);
-            console.log(col.field.split('.').reduce((o, i) => o[i], this.props.data[rowIdx]));
+            console.log('rowIdx is ', rowIdx);
+            console.log('idx is ', idx);
+            console.log(this.state.data[rowIdx]);
+            //console.log(col.field.split('.').reduce((o, i) => o[i], this.props.data[rowIdx]));
             return (
               <td key={`col-${rowIdx}-${idx}`}>
                 {typeof col.cell === 'function'
-                  ? col.cell(this.props.data[rowIdx])
-                  : col.field.split('.').reduce((o, i) => o[i], this.props.data[rowIdx])}
+                  ? col.cell(this.state.data[rowIdx])
+                  : col.field
+                      .split('.')
+                      .reduce((o, i) => o[i], this.state.data[rowIdx])}
               </td>
             );
           })}
@@ -141,9 +165,20 @@ class DataTable extends React.Component {
 
   sortColumn(sortBy) {}
 
-  filterColumn(filter) {
+  filterColumn(field, keyword) {
     console.log('filtering...');
-    console.log(filter);
+    console.log(field, ' - ', keyword);
+    const filteredData = this.props.data.filter(
+      item => ~field.split('.').reduce((o, i) => o[i], item).indexOf(keyword),
+    );
+    console.table(filteredData);
+    this.setState({ data: filteredData });
+    //console.log(filter);
+    //this.setState({
+    //	data: this.props.data.filter(item => {
+    //		return ~item[field].indexOf(keyword);
+    //	})
+    //});
   }
 
   applyFilter() {}
