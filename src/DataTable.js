@@ -49,29 +49,51 @@ class DataTable extends React.Component {
   }
 
   render() {
+    const {
+      tableClassName = '',
+      theadClassName = '',
+      tbodyClassName = '',
+      tfootClassName = '',
+      renderColumnFilters = this.renderColumnFilters,
+    } = this.props;
+
     return (
       <div className="responsive">
-        <table className="table table-bordered">
-          <thead>
-            {this.renderColumnFilters()}
+        <table className={tableClassName}>
+          <thead className={theadClassName}>
+            {renderColumnFilters()}
             {this.renderColumnLabels()}
           </thead>
-          <tbody>
+          <tbody className={tbodyClassName}>
             {this.renderBody()}
           </tbody>
+          <tfoot className={tfootClassName} />
         </table>
       </div>
     );
   }
 
   renderColumnLabels() {
+    if (this.props.renderColumnLabels === false) {
+      return null;
+    }
+
+    if (typeof this.props.renderColumnLabels === 'function') {
+      return this.props.renderColumnLabels(this.sortColumn);
+    }
+
     return (
       <tr>
         {this.columns.map((col, index) => {
+          const {
+            labelClassName = '',
+          } = col;
+
           return (
             <th
               key={'column-label-' + index}
               onClick={e => console.log('sorting...')}
+              className={labelClassName}
               style={{ cursor: 'pointer' }}
             >
               {col.label}
@@ -123,10 +145,10 @@ class DataTable extends React.Component {
       rowElement.push(
         <tr key={`row-${rowIdx}`}>
           {this.columns.map((col, idx) => {
-            console.log(col.field);
-            console.log('rowIdx is ', rowIdx);
-            console.log('idx is ', idx);
-            console.log(this.state.data[rowIdx]);
+            //console.log(col.field);
+            //console.log('rowIdx is ', rowIdx);
+            //console.log('idx is ', idx);
+            //console.log(this.state.data[rowIdx]);
             //console.log(col.field.split('.').reduce((o, i) => o[i], this.props.data[rowIdx]));
             return (
               <td key={`col-${rowIdx}-${idx}`}>
@@ -163,16 +185,27 @@ class DataTable extends React.Component {
     return <div />;
   }
 
-  sortColumn(sortBy) {}
+  sortColumn(sortBy) {
+    console.log(sortBy);
+  }
 
   filterColumn(field, keyword) {
-    console.log('filtering...');
-    console.log(field, ' - ', keyword);
-    const filteredData = this.props.data.filter(
-      item => ~field.split('.').reduce((o, i) => o[i], item).indexOf(keyword),
-    );
-    console.table(filteredData);
-    this.setState({ data: filteredData });
+    this.filters[field] = keyword.trim();
+
+    if (!keyword) {
+      delete this.filters[field];
+    }
+
+    this.applyFilter();
+
+    //console.log('filtering...');
+    //console.log(field, ' - ', keyword);
+    //const filteredData = this.state.data.filter(
+    //  item => ~field.split('.').reduce((o, i) => o[i], item).indexOf(keyword),
+    //);
+    //console.table(filteredData);
+    //this.setState({ data: filteredData });
+
     //console.log(filter);
     //this.setState({
     //	data: this.props.data.filter(item => {
@@ -181,7 +214,22 @@ class DataTable extends React.Component {
     //});
   }
 
-  applyFilter() {}
+  applyFilter() {
+    const filteredData = this.props.data.filter(row => {
+      let includeItem = true;
+      Object.keys(this.filters).forEach(field => {
+        const cellValue = field.split('.').reduce((o, i) => o[i], row);
+        if (~cellValue.indexOf(this.filters[field])) {
+          includeItem = includeItem && true;
+        } else {
+          includeItem = false;
+        }
+      });
+      return includeItem;
+    });
+
+    this.setState({ data: filteredData });
+  }
 
   loadData() {}
 }
