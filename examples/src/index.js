@@ -4,18 +4,20 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { DataTable, Column } from 'react-dtable';
 
-const Pagination = (props) => {
-  return <div>
-    <span>Pagination</span>
-  </div>
-}
+const Pagination = props => {
+  return (
+    <div>
+      <span>Pagination</span>
+    </div>
+  );
+};
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       data: [],
-    }
+    };
   }
 
   componentWillMount() {
@@ -29,12 +31,12 @@ class App extends React.Component {
       })
       .then(json => {
         if (json.results) {
-          this.setState({data:json.results})
+          this.setState({ data: json.results });
         }
       })
       .catch(error => {
         console.error(error);
-      })
+      });
   }
 
   render() {
@@ -42,7 +44,14 @@ class App extends React.Component {
       <div className="container">
         <br />
 
-        <DataTable data={this.state.data}>
+        <DataTable
+          data={this.state.data}
+          pagination={Pagination}
+          tableClassName="table"
+          theadClassName="thead"
+          tbodyClassName="tbody"
+          tfootClassName="tfoot"
+        >
           <div>Hello World</div>
           <Column label="Username" field="login.username" />
           <Column label="Name" field="name.first" />
@@ -56,17 +65,16 @@ class App extends React.Component {
             cellClassName=""
             sort="true or false"
           />
-          <Pagination />
         </DataTable>
 
-       { /*
+        {/*
         <DataTable data={this.state.data}>
           {[{ l: 'Email', f: 'email' }, { l: 'Name', f: 'name.last' }].map((
             item,
             i,
           ) => <Column key={i} label={item.l} field={item.f} />)}
         </DataTable>
-        */ }
+        */}
       </div>
     );
   }
