@@ -1,16 +1,17 @@
 var webpack = require('webpack');
 var path = require('path');
-var examplesPath = path.join(__dirname, 'examples');
+var srcPath = path.join(__dirname, 'src');
+var buildPath = path.join(__dirname, 'dist');
 
 module.exports = {
-  entry: path.join(examplesPath, 'index.js'),
+  entry: path.join(srcPath, 'index.js'),
   output: {
-    path: examplesPath,
+    path: buildPath,
     filename: 'bundle.js',
   },
   watch: true,
   devServer: {
-    contentBase: examplesPath,
+    contentBase: buildPath,
     compress: true,
     host: '0.0.0.0',
     port: 4000,
@@ -22,7 +23,7 @@ module.exports = {
         loader: 'babel-loader',
         options: { presets: ['es2015', 'react'] },
         //exclude: [/node_modules/],
-        include: [examplesPath],
+        include: [srcPath],
       },
       {
         test: /\.css$/,

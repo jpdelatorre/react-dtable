@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { DataTable, Column } from '../lib';
+import { DataTable, Column } from 'react-dtable';
 
 const Pagination = (props) => {
   return <div>
@@ -50,7 +50,7 @@ class App extends React.Component {
             field="email"
             label="Email"
             labelClassName=""
-            filter=""
+            filter="emailInput"
             filterClassName=""
             cell=""
             cellClassName=""
@@ -59,12 +59,14 @@ class App extends React.Component {
           <Pagination />
         </DataTable>
 
+       { /*
         <DataTable data={this.state.data}>
           {[{ l: 'Email', f: 'email' }, { l: 'Name', f: 'name.last' }].map((
             item,
             i,
           ) => <Column key={i} label={item.l} field={item.f} />)}
         </DataTable>
+        */ }
       </div>
     );
   }
