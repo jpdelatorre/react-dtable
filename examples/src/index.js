@@ -44,17 +44,30 @@ class App extends React.Component {
       <div className="container">
         <br />
 
+        <pre>
+          {
+            `const contactList = [];
+
+<DataTable data={contactList}>
+  <Column label="Username" field="login.username" />
+  <Column label="Full Name" field="name" cell={row => (\`\${row.first} \${row.last}\`} />
+  <Column label="Email" field="email" />	
+</DataTable>`
+          }
+        </pre>
+
         <DataTable
           data={this.state.data}
-          pagination={Pagination}
-          tableClassName="table"
+          tableClassName="table table-bordered"
           theadClassName="thead"
           tbodyClassName="tbody"
           tfootClassName="tfoot"
         >
-          <div>Hello World</div>
           <Column label="Username" field="login.username" />
-          <Column label="Name" field="name.first" />
+          <Column
+            label="Full Name"
+            cell={row => `${row.name.first} ${row.name.last}`}
+          />
           <Column
             field="email"
             label="Email"
@@ -63,7 +76,6 @@ class App extends React.Component {
             filterClassName=""
             cell=""
             cellClassName=""
-            sort="true or false"
           />
         </DataTable>
 
