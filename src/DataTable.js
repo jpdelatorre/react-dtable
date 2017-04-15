@@ -5,6 +5,7 @@ class DataTable extends React.Component {
     super(props);
     this.columns = [];
     this.filters = {};
+    this.filterMapping = {}; //This maps the value of custom cell and for filtering?
     this.sortOrder = {};
 
     this.currentPage = 1;
@@ -30,11 +31,21 @@ class DataTable extends React.Component {
         element.type.name === 'Column'
       ) {
         //console.log(element.type.name);
-        const { label, field, filter } = element.props || {};
+        const {
+          label,
+          field,
+          filter,
+          cell,
+          cellClassName = '',
+          className = '',
+        } = element.props || {};
         this.columns.push({
           label,
           field,
           filter,
+          cell,
+          cellClassName,
+          className,
         });
       } else {
         console.warn("Only 'Column' is a valid children");
@@ -44,6 +55,7 @@ class DataTable extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.data !== this.props.data) {
+      this.itemsPerPage = nextProps.data.length;
       this.setState({ data: nextProps.data });
     }
   }
@@ -54,14 +66,13 @@ class DataTable extends React.Component {
       theadClassName = '',
       tbodyClassName = '',
       tfootClassName = '',
-      renderColumnFilters = this.renderColumnFilters,
     } = this.props;
 
     return (
       <div className="responsive">
         <table className={tableClassName}>
           <thead className={theadClassName}>
-            {renderColumnFilters()}
+            {this.renderColumnFilters()}
             {this.renderColumnLabels()}
           </thead>
           <tbody className={tbodyClassName}>
@@ -90,39 +101,58 @@ class DataTable extends React.Component {
           } = col;
 
           return (
-            <th
-              key={'column-label-' + index}
-              onClick={e => console.log('sorting...')}
-              className={labelClassName}
-              style={{ cursor: 'pointer' }}
-            >
+            <th key={'column-label-' + index} className={labelClassName}>
               {col.label}
             </th>
           );
+
+          // for sorting
+          //          return (
+          //            <th
+          //              key={'column-label-' + index}
+          //              onClick={e => console.log('sorting...')}
+          //              className={labelClassName}
+          //              style={{ cursor: 'pointer' }}
+          //            >
+          //              {col.label}
+          //            </th>
+          //          );
         })}
       </tr>
     );
   }
 
   renderColumnFilters() {
+    if (this.props.renderColumnFilters === false) {
+      return null;
+    }
+
+    if (typeof this.props.renderColumnFilters === 'function') {
+      return this.props.renderColumnFilters(this.filterColumn);
+    }
+
     return (
       <tr>
         {this.columns.map((col, index) => {
-          if (col.filter === false) {
-            return <th />;
+          const thProps = {
+            key: `column-filter-${index}`,
+            className: col.filterClassName,
+          };
+          if (col.filter === false || (!col.field && !col.filter)) {
+            return <th {...thProps} />;
           }
 
-          if (typeof col.filter === 'function') {
-            return col.filter(this.filterColumn);
-          }
           return (
-            <th key={'column-filter-' + index}>
-              <input
-                type="text"
-                className="form-control"
-                name={col.filter || col.field}
-                onChange={e => this.filterColumn(e.target.name, e.target.value)}
-              />
+            <th {...thProps}>
+              {typeof col.filter === 'function'
+                ? col.filter(this.filterColumn)
+                : <input
+                    type="text"
+                    className="form-control"
+                    name={col.filter || col.field}
+                    onChange={e =>
+                      this.filterColumn(e.target.name, e.target.value)}
+                  />}
             </th>
           );
         })}
@@ -140,26 +170,27 @@ class DataTable extends React.Component {
     const numberOfItemsToDisplay = this.state.data.length < this.itemsPerPage
       ? this.state.data.length
       : this.itemsPerPage;
-    //debugger;
+
     for (let rowIdx = 0; rowIdx < numberOfItemsToDisplay; rowIdx++) {
+      const cellElement = [];
+      let rowClassName = '';
+
+      this.columns.forEach((col, idx) => {
+        rowClassName = col.className;
+        cellElement.push(
+          <td key={`col-${rowIdx}-${idx}`} className={col.cellClassName}>
+            {typeof col.cell === 'function'
+              ? col.cell(this.state.data[rowIdx])
+              : col.field
+                  .split('.')
+                  .reduce((o, i) => o[i], this.state.data[rowIdx])}
+          </td>,
+        );
+      });
+
       rowElement.push(
-        <tr key={`row-${rowIdx}`}>
-          {this.columns.map((col, idx) => {
-            //console.log(col.field);
-            //console.log('rowIdx is ', rowIdx);
-            //console.log('idx is ', idx);
-            //console.log(this.state.data[rowIdx]);
-            //console.log(col.field.split('.').reduce((o, i) => o[i], this.props.data[rowIdx]));
-            return (
-              <td key={`col-${rowIdx}-${idx}`}>
-                {typeof col.cell === 'function'
-                  ? col.cell(this.state.data[rowIdx])
-                  : col.field
-                      .split('.')
-                      .reduce((o, i) => o[i], this.state.data[rowIdx])}
-              </td>
-            );
-          })}
+        <tr key={`row-${rowIdx}`} className={rowClassName}>
+          {cellElement}
         </tr>,
       );
     }
@@ -219,6 +250,12 @@ class DataTable extends React.Component {
       let includeItem = true;
       Object.keys(this.filters).forEach(field => {
         const cellValue = field.split('.').reduce((o, i) => o[i], row);
+        if (typeof cellValue !== 'string') {
+          this.warningDisplayed || console.warn('Invalid filter field');
+          this.warningDisplayed = true;
+          return;
+        }
+
         if (~cellValue.indexOf(this.filters[field])) {
           includeItem = includeItem && true;
         } else {
