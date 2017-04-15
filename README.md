@@ -3,50 +3,83 @@
 `react-dtable` is a DataTable in React component. It allows you to write declarative
 data table. It comes with built-in sorting, filtering and pagination.
 
-To install just type `npm install --save react-dtable`
+To install <br />
+`npm install --save react-dtable`
+
 
 ```js
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { DataTable, Column } from 'react-dtable';
 
-class App extends Component {
+class App extends React.Component {
+  componentWillMount() {
+    fetch(`https://randomuser.me/api/?results=50`)
+      .then(res => res.json())
+      .then(json => this.setState({data: json.results}))
+      .catch(err => console.error(err));
+  }
+
   render() {
     return (
-        <DataTable>
+        <DataTable
+          data={this.state.data}
+        >
           <Column
-            label="ID"
-            field="id"
+            label="Username"
+            field="login.username"
           />
           <Column
-            label="name"
+            label="Full Name"
             filter={filter => <input type="text" onChange={e => filter({name: e.target.value})} />}
             cell={row => <span><strong>{row.firstName}</strong> {row.lastName}</span>}
           />
+          <Column
+            label="Email"
+            field="email"
+          />
+          <Column
+            label={false}
+            cell={row => <button>Delete</button>}
         </DataTable>
       );
   }
 }
+
+ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
-### DataTable Props - `<DataTable>`
+### `<DataTable>` Props
 
 Property | Type | Description
 :---|:---|:---
-`data` | _[object]_ | Array of object.
-`loadData` | _function_ | Function to invoked for loading data. It passes an option object `this.props.loadData({ pageToLoad, sortOrder, filters })`
-`itemsPerPage` | _number_ | Total items to display per page
-`renderColumnLabels` | _boolean_ | default: `true`
- | _function_ | If set, will invoke to populate `<thead>`. It should return a `<tr>` element.
-`renderColumnFilters` | _boolean_ | default: `true`
+`data` | _[object]_ | **required** - Array of object.
+`renderColumnLabels` | _boolean_ | default: `true`. Setting to false will skip rendering the entire filter row
+&nbsp; | _function_ | If set to false, labels will not be shown. <br />IF set to a function, it should return a `<tr>` node.
+`renderColumnFilters` | _boolean_ | default: `true`. If set to false, filter columns will not be rendered. 
+&nbsp; | _function_ | `(filterColumn, applyFilter) => { ... }`
+`tableClassName` | _string_ | `<table className={tableClassName}>`
+`theadClassName` | _string_ | `<thead className={theadClassName}>`
+`tbodyClassName` | _string_ | `<tbody className={tbodyClassName}>`
+`tfootClassName` | _string_ | `<tfoot className={tfootClassName}>`
 
-### Column Props - `<Column>`
+### `<Column>` Props
 
 Property | Type | Description
 :---|:---|:---
-`label` | _string_ | Will be displayed as is
-&nbsp;&nbsp;&nbsp; ↳ | _function_ | Uses something
+`label` | _string_ | Column heading to display.
+`labelClassName` | _string_ | `<th className={labelClassName}>`
 `field` | _string_ | Field name for displaying value and filter
-`filter` | _function_ | Using a function signature of `(filter) => {}` <br>**String** - uses the string as keyword
+`filter` | _function_ | `(filterColumn) => { ... }`
+`filterClassName` | _string_ | `<th className={filterClassName}>`
 `cell` | _string_ | Text to display
- | _function_ | `(row) => { ... }`
+&nbsp; | _function_ | `(row) => { ... }`
  `cellClassName` | _string_ | `<td className={cellClassName}>...</td>`
  `className` | _string_ | `<tr className={className}>...</tr>`
+
+## Todo
+
+- Column sorting
+- Pagination
+- Loading of data
+
