@@ -1,11 +1,16 @@
 # react-dtable
 
-`react-dtable` is a DataTable in React component. It allows you to write declarative
-data table. It comes with built-in sorting, filtering and pagination.
+**\*\*Experimental\*\***
 
-To install <br />
-`npm install --save react-dtable`
+`react-dtable` is a React component that lets you generate a data table easily.
 
+## Installation
+
+```sh
+npm install --save react-dtable
+```
+
+## Example
 
 ```js
 import React from 'react';
@@ -31,7 +36,7 @@ class App extends React.Component {
           />
           <Column
             label="Full Name"
-            filter={filter => <input type="text" onChange={e => filter({name: e.target.value})} />}
+            filter={filter => <input type="text" onChange={e => filter({ name: e.target.value})} />}
             cell={row => <span><strong>{row.firstName}</strong> {row.lastName}</span>}
           />
           <Column
@@ -49,15 +54,17 @@ class App extends React.Component {
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
+## API
+
 ### `<DataTable>` Props
 
 Property | Type | Description
 :---|:---|:---
 `data` | _[object]_ | **required** - Array of object.
-`renderColumnLabels` | _boolean_ | default: `true`. Setting to false will skip rendering the entire filter row
-&nbsp; | _function_ | If set to false, labels will not be shown. <br />IF set to a function, it should return a `<tr>` node.
-`renderColumnFilters` | _boolean_ | default: `true`. If set to false, filter columns will not be rendered. 
-&nbsp; | _function_ | `(filterColumn, applyFilter) => { ... }`
+`renderColumnLabels` | _boolean_ | default: `true`. Setting to `false` will skip rendering the labels row
+&nbsp; | _function_ | `() => <tr> ... </tr>` - For customizing column headings row
+`renderColumnFilters` | _boolean_ | default: `true`. Setting to `false`, will skip rendering the filters row
+&nbsp; | _function_ | `(filterColumn) => <tr> ... </tr>` - For customizing column filters row
 `tableClassName` | _string_ | `<table className={tableClassName}>`
 `theadClassName` | _string_ | `<thead className={theadClassName}>`
 `tbodyClassName` | _string_ | `<tbody className={tbodyClassName}>`
@@ -69,17 +76,19 @@ Property | Type | Description
 :---|:---|:---
 `label` | _string_ | Column heading to display.
 `labelClassName` | _string_ | `<th className={labelClassName}>`
-`field` | _string_ | Field name for displaying value and filter
-`filter` | _function_ | `(filterColumn) => { ... }`
+`field` | _string_ | Field name for displaying value and filter. <br>For nested object, you can use the dot (`.`) notation. (e.g. `name.firstName`)
+`filter` | _function_ | `(filterColumn) => { ... }` - If you need to use a different element for filtering. `filterColumn` is a function that you can call to pass a key/value pair to be used for filtering<br>(_e.g._ `<select name="status" onChange={e => filterColumn({ [e.target.name]: e.target.value })}><option value="1">Active</option><option value="0">Inactive</option></select>`)
 `filterClassName` | _string_ | `<th className={filterClassName}>`
-`cell` | _string_ | Text to display
-&nbsp; | _function_ | `(row) => { ... }`
- `cellClassName` | _string_ | `<td className={cellClassName}>...</td>`
- `className` | _string_ | `<tr className={className}>...</tr>`
+`cell` | _string_ | Text to display instead of the data
+&nbsp; | _function_ | `(row) => { ... }` - Allows you to customize the cell content
+ `cellClassName` | _string_ | `<td className={cellClassName}>`
+ `className` | _string_ | `<tr className={className}>`
 
 ## Todo
 
 - Column sorting
 - Pagination
-- Loading of data
-
+- Dynamic loading of data
+- Better docs
+- Add tests
+- Add more examples
