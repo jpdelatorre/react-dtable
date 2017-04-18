@@ -50,7 +50,7 @@ class App extends React.Component {
 
 <DataTable data={contactList}>
   <Column label="Username" field="login.username" />
-  <Column label="Full Name" field="name" cell={row => (\`\${row.first} \${row.last}\`} />
+  <Column label="Full Name" cell={row => (\`\${row.first} \${row.last}\`} />
   <Column label="Email" field="email" />	
 </DataTable>`
           }
@@ -66,7 +66,44 @@ class App extends React.Component {
           <Column label="Username" field="login.username" />
           <Column
             label="Full Name"
+            filter={filter => {
+              return (
+                <input
+                  className="form-control"
+                  onChange={e => {
+                    const input = e.target.value;
+                    filter({
+                      fullName: row => {
+                        const value = `${row.name.first} ${row.name.last}`;
+                        return ~value.indexOf(input.trim());
+                      },
+                    });
+                  }}
+                />
+              );
+            }}
             cell={row => `${row.name.first} ${row.name.last}`}
+          />
+          <Column
+            field="gender"
+            label="Gender"
+            filter={filter => (
+              <select
+                name="gender"
+                className="form-control"
+                onChange={e =>
+                  filter({
+                    gender: row => {
+                      const value = e.target.value;
+                      return row.gender === value;
+                    },
+                  })}
+              >
+                <option value="">All</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            )}
           />
           <Column
             field="email"

@@ -11,6 +11,6 @@ Column.propTypes = {
   label: PropTypes.any,
   field: PropTypes.string,
   filter: PropTypes.any,
-}
+};
 
 export default Column;

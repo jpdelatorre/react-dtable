@@ -5,21 +5,14 @@ class DataTable extends React.Component {
     super(props);
     this.columns = [];
     this.filters = {};
-    this.filterMapping = {}; //This maps the value of custom cell and for filtering?
-    this.sortOrder = {};
-
-    this.currentPage = 1;
-    this.itemsPerPage = 10;
-    this.numberOfPages = 1;
-    this.totalItems = 0;
 
     this.state = {
       data: props.data,
     };
 
-    this.renderColumnLabels = this.renderColumnLabels.bind(this);
-    this.renderColumnFilters = this.renderColumnFilters.bind(this);
-    this.renderBody = this.renderBody.bind(this);
+    //this.renderColumnLabels = this.renderColumnLabels.bind(this);
+    //this.renderColumnFilters = this.renderColumnFilters.bind(this);
+    //this.renderBody = this.renderBody.bind(this);
     this.filterColumn = this.filterColumn.bind(this);
   }
 
@@ -30,19 +23,23 @@ class DataTable extends React.Component {
         typeof element.type !== 'string' &&
         element.type.name === 'Column'
       ) {
-        //console.log(element.type.name);
         const {
           label,
+          labelClassName = '',
           field,
           filter,
+          filterClassName = '',
           cell,
           cellClassName = '',
           className = '',
         } = element.props || {};
+
         this.columns.push({
           label,
+          labelClassName,
           field,
           filter,
+          filterClassName,
           cell,
           cellClassName,
           className,
@@ -51,6 +48,21 @@ class DataTable extends React.Component {
         console.warn("Only 'Column' is a valid children");
       }
     });
+
+    if (!this.columns.length) {
+      // try to make sense of the data
+      const firstRow = this.props.data[0] || {};
+      this.columns = Object.keys(firstRow).map(field => {
+        return {
+          label: field,
+          labelClassName: '',
+          field,
+          filterClassName: '',
+          cellClassName: '',
+          className: '',
+        };
+      });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -68,19 +80,21 @@ class DataTable extends React.Component {
       tfootClassName = '',
     } = this.props;
 
+    if (this.state.data.length <= 0 && this.columns <= 0) {
+      return null;
+    }
+
     return (
-      <div className="responsive">
-        <table className={tableClassName}>
-          <thead className={theadClassName}>
-            {this.renderColumnFilters()}
-            {this.renderColumnLabels()}
-          </thead>
-          <tbody className={tbodyClassName}>
-            {this.renderBody()}
-          </tbody>
-          <tfoot className={tfootClassName} />
-        </table>
-      </div>
+      <table className={tableClassName}>
+        <thead className={theadClassName}>
+          {this.renderColumnFilters()}
+          {this.renderColumnLabels()}
+        </thead>
+        <tbody className={tbodyClassName}>
+          {this.renderBody()}
+        </tbody>
+        <tfoot className={tfootClassName} />
+      </table>
     );
   }
 
@@ -96,27 +110,16 @@ class DataTable extends React.Component {
     return (
       <tr>
         {this.columns.map((col, index) => {
-          const {
-            labelClassName = '',
-          } = col;
+          const thProps = {
+            key: `column-label-${index}`,
+            className: col.labelClassName,
+          };
 
           return (
-            <th key={'column-label-' + index} className={labelClassName}>
-              {col.label}
+            <th {...thProps}>
+              {col.label || ''}
             </th>
           );
-
-          // for sorting
-          //          return (
-          //            <th
-          //              key={'column-label-' + index}
-          //              onClick={e => console.log('sorting...')}
-          //              className={labelClassName}
-          //              style={{ cursor: 'pointer' }}
-          //            >
-          //              {col.label}
-          //            </th>
-          //          );
         })}
       </tr>
     );
@@ -150,8 +153,10 @@ class DataTable extends React.Component {
                     type="text"
                     className="form-control"
                     name={col.filter || col.field}
-                    onChange={e =>
-                      this.filterColumn(e.target.name, e.target.value)}
+                    onChange={e => {
+                      const name = e.target.name, value = e.target.value;
+                      this.filterColumn({ [name]: value });
+                    }}
                   />}
             </th>
           );
@@ -196,59 +201,32 @@ class DataTable extends React.Component {
     }
 
     return rowElement;
-
-    // return this.props.data.map((row, index) => {
-    //   return (
-    //     <tr key={'row-' + index}>
-    //       {this.columns.map((col, idx) => {
-    //         return (
-    //           <td key={'col-' + index + '-' + idx}>
-    //             {row[col.field]}
-    //           </td>
-    //         );
-    //       })}
-    //     </tr>
-    //   );
-    // });
   }
 
-  renderPagination() {
-    return <div />;
-  }
-
-  sortColumn(sortBy) {
-    console.log(sortBy);
-  }
-
-  filterColumn(field, keyword) {
-    this.filters[field] = keyword.trim();
-
-    if (!keyword) {
-      delete this.filters[field];
+  filterColumn(filters = {}) {
+    this.filters = Object.assign(this.filters, filters);
+    for (let key in this.filters) {
+      const value = typeof this.filters[key] === 'string'
+        ? this.filters[key].trim()
+        : this.filters[key];
+      if (value) {
+        this.filters[key] = value;
+      } else {
+        delete this.filters[key];
+      }
     }
-
     this.applyFilter();
-
-    //console.log('filtering...');
-    //console.log(field, ' - ', keyword);
-    //const filteredData = this.state.data.filter(
-    //  item => ~field.split('.').reduce((o, i) => o[i], item).indexOf(keyword),
-    //);
-    //console.table(filteredData);
-    //this.setState({ data: filteredData });
-
-    //console.log(filter);
-    //this.setState({
-    //	data: this.props.data.filter(item => {
-    //		return ~item[field].indexOf(keyword);
-    //	})
-    //});
   }
 
   applyFilter() {
     const filteredData = this.props.data.filter(row => {
       let includeItem = true;
       Object.keys(this.filters).forEach(field => {
+        if (typeof this.filters[field] === 'function') {
+          includeItem = this.filters[field](row);
+          return;
+        }
+
         const cellValue = field.split('.').reduce((o, i) => o[i], row);
         if (typeof cellValue !== 'string') {
           this.warningDisplayed || console.warn('Invalid filter field');
@@ -267,8 +245,10 @@ class DataTable extends React.Component {
 
     this.setState({ data: filteredData });
   }
-
-  loadData() {}
 }
+
+DataTable.defaultProps = {
+  data: [],
+};
 
 export default DataTable;
