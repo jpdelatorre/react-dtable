@@ -1,11 +1,11 @@
 {
   "name": "react-dtable",
   "version": "0.0.1",
-  "description": "Data table with built in pagination, column filtering and sorting implemented in React.",
+  "description": "React component for generating a table with built-in filtering.",
   "main": "lib/index.js",
   "scripts": {
-    "start": "babel src --watch --out-dir lib --source-maps inline",
-    "build": "babel src --out-dir lib --source-maps inline",
+    "dev": "babel src --watch --out-dir lib --source-maps inline",
+    "build": "babel src --out-dir lib",
     "test": "jest",
     "test:watch": "npm test -- --watch"
   },
@@ -16,10 +16,9 @@
   "keywords": [
     "datatable",
     "datagrid",
-    "react-datatable",
-    "bootstrap-datatable"
+    "react table"
   ],
-  "author": "jpdelatorre <jp.delatorre@gmail.com> (http://jpdelatorre.com/)",
+  "author": "John De La Torre (http://jpdelatorre.com/)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/jpdelatorre/react-dtable/issues"
@@ -30,10 +29,14 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
+    "babel-jest": "^19.0.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
+    "enzyme": "^2.8.2",
     "jest": "^19.0.2",
-    "react": "^15.5.4"
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "react-test-renderer": "^15.5.4"
   },
   "babel": {
     "presets": [
