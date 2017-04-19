@@ -10,9 +10,6 @@ class DataTable extends React.Component {
       data: props.data,
     };
 
-    //this.renderColumnLabels = this.renderColumnLabels.bind(this);
-    //this.renderColumnFilters = this.renderColumnFilters.bind(this);
-    //this.renderBody = this.renderBody.bind(this);
     this.filterColumn = this.filterColumn.bind(this);
   }
 
@@ -219,11 +216,12 @@ class DataTable extends React.Component {
   }
 
   applyFilter() {
+    console.log(this.filters);
     const filteredData = this.props.data.filter(row => {
       let includeItem = true;
       Object.keys(this.filters).forEach(field => {
         if (typeof this.filters[field] === 'function') {
-          includeItem = this.filters[field](row);
+          includeItem = includeItem && this.filters[field](row);
           return;
         }
 

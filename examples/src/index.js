@@ -4,14 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { DataTable, Column } from 'react-dtable';
 
-const Pagination = props => {
-  return (
-    <div>
-      <span>Pagination</span>
-    </div>
-  );
-};
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -43,18 +35,6 @@ class App extends React.Component {
     return (
       <div className="container">
         <br />
-
-        <pre>
-          {
-            `const contactList = [];
-
-<DataTable data={contactList}>
-  <Column label="Username" field="login.username" />
-  <Column label="Full Name" cell={row => (\`\${row.first} \${row.last}\`} />
-  <Column label="Email" field="email" />	
-</DataTable>`
-          }
-        </pre>
 
         <DataTable
           data={this.state.data}
@@ -91,13 +71,14 @@ class App extends React.Component {
               <select
                 name="gender"
                 className="form-control"
-                onChange={e =>
+                onChange={e => {
+                  const value = e.target.value;
                   filter({
                     gender: row => {
-                      const value = e.target.value;
                       return row.gender === value;
                     },
-                  })}
+                  });
+                }}
               >
                 <option value="">All</option>
                 <option value="male">Male</option>
@@ -116,14 +97,6 @@ class App extends React.Component {
           />
         </DataTable>
 
-        {/*
-        <DataTable data={this.state.data}>
-          {[{ l: 'Email', f: 'email' }, { l: 'Name', f: 'name.last' }].map((
-            item,
-            i,
-          ) => <Column key={i} label={item.l} field={item.f} />)}
-        </DataTable>
-        */}
       </div>
     );
   }
