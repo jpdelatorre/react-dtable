@@ -5,6 +5,7 @@ class DataTable extends React.Component {
     super(props);
     this.columns = [];
     this.filters = {};
+    this.sortOrder = {};
 
     this.state = {
       data: props.data,
@@ -65,7 +66,7 @@ class DataTable extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.data !== this.props.data) {
       this.itemsPerPage = nextProps.data.length;
-      this.setState({ data: nextProps.data });
+      this.setState({data: nextProps.data});
     }
   }
 
@@ -112,6 +113,21 @@ class DataTable extends React.Component {
             className: col.labelClassName,
           };
 
+          if (col.field || col.sortable === false) {
+            thProps['onClick'] = e => this.sortColumn(col.field);
+            thProps['style'] = {
+              cursor: 'pointer',
+            };
+
+            let sortClass = 'sorting';
+
+            if (col.field === this.sortOrder.sortBy) {
+              if (this.sortOrder.orderBy === 'ASC') sortClass = 'sorting-asc';
+              if (this.sortOrder.orderBy === 'DESC') sortClass = 'sorting-desc';
+            }
+            thProps.className += ` ${sortClass}`;
+          }
+
           return (
             <th {...thProps}>
               {col.label || ''}
@@ -152,7 +168,7 @@ class DataTable extends React.Component {
                     name={col.filter || col.field}
                     onChange={e => {
                       const name = e.target.name, value = e.target.value;
-                      this.filterColumn({ [name]: value });
+                      this.filterColumn({[name]: value});
                     }}
                   />}
             </th>
@@ -186,14 +202,14 @@ class DataTable extends React.Component {
               : col.field
                   .split('.')
                   .reduce((o, i) => o[i], this.state.data[rowIdx])}
-          </td>,
+          </td>
         );
       });
 
       rowElement.push(
         <tr key={`row-${rowIdx}`} className={rowClassName}>
           {cellElement}
-        </tr>,
+        </tr>
       );
     }
 
@@ -241,7 +257,39 @@ class DataTable extends React.Component {
       return includeItem;
     });
 
-    this.setState({ data: filteredData });
+    this.setState({data: filteredData});
+  }
+
+  sortColumn(field) {
+    if (field !== this.sortOrder.sortBy) {
+      this.sortOrder = {
+        sortBy: field,
+        orderBy: 'DESC',
+      };
+    } else {
+      this.sortOrder = {
+        sortBy: field,
+        orderBy: this.sortOrder.orderBy === 'DESC' ? 'ASC' : 'DESC',
+      };
+    }
+
+    // sort data
+    const sortedData = this.props.data.sort((a, b) => {
+      const cellA = field.split('.').reduce((o, i) => o[i], a).toUpperCase();
+      const cellB = field.split('.').reduce((o, i) => o[i], b).toUpperCase();
+
+      if (cellA < cellB) {
+        return this.sortOrder.orderBy === 'ASC' ? -1 : 1;
+      }
+
+      if (cellA > cellB) {
+        return this.sortOrder.orderBy === 'DESC' ? -1 : 1;
+      }
+
+      return 0;
+    });
+
+    this.setState({data: sortedData});
   }
 }
 
