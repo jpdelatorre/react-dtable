@@ -1,0 +1,48 @@
+{
+  "name": "react-dtable",
+  "version": "0.0.1",
+  "description": "React component for generating a table with built-in filtering.",
+  "main": "lib/index.js",
+  "scripts": {
+    "dev": "babel src --watch --out-dir lib --source-maps inline",
+    "build": "babel src --out-dir lib",
+    "test": "jest",
+    "test:watch": "npm test -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpdelatorre/react-dtable.git"
+  },
+  "keywords": [
+    "datatable",
+    "datagrid",
+    "react table"
+  ],
+  "author": "John De La Torre (http://jpdelatorre.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jpdelatorre/react-dtable/issues"
+  },
+  "homepage": "https://github.com/jpdelatorre/react-dtable#readme",
+  "peerDependencies": {
+    "react": "^15.0 || ^16.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-jest": "^19.0.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "enzyme": "^2.8.2",
+    "jest": "^19.0.2",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "react-test-renderer": "^15.5.4"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "react"
+    ]
+  },
+  "dependencies": {}
+}
