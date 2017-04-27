@@ -12,6 +12,7 @@ module.exports = {
   watch: true,
   devServer: {
     contentBase: buildPath,
+    historyApiFallback: true,
     compress: true,
     host: '0.0.0.0',
     port: 4000,
@@ -22,7 +23,6 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         options: { presets: ['es2015', 'react'] },
-        //exclude: [/node_modules/],
         include: [srcPath],
       },
       {
