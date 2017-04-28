@@ -13,45 +13,80 @@ npm install --save react-dtable
 ## Example
 
 ```js
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { DataTable, Column } from 'react-dtable';
+import React from "react";
+import ReactDOM from "react-dom";
+import { DataTable, Column } from "react-dtable";
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { data: [] };
+  }
+
   componentWillMount() {
     fetch(`https://randomuser.me/api/?results=50`)
       .then(res => res.json())
-      .then(json => this.setState({data: json.results}))
+      .then(json => this.setState({ data: json.results }))
       .catch(err => console.error(err));
   }
 
   render() {
     return (
-        <DataTable
-          data={this.state.data}
-        >
-          <Column
-            label="Username"
-            field="login.username"
-          />
-          <Column
-            label="Full Name"
-            filter={filter => <input type="text" onChange={e => filter({ name: e.target.value})} />}
-            cell={row => <span><strong>{row.firstName}</strong> {row.lastName}</span>}
-          />
-          <Column
-            label="Email"
-            field="email"
-          />
-          <Column
-            label={false}
-            cell={row => <button>Delete</button>}
-        </DataTable>
-      );
+      <DataTable data={this.state.data}>
+        <Column label="Username" field="login.username" />
+        <Column
+          label="Full Name"
+          filter={filter => {
+            return (
+              <input
+                className="form-control"
+                onChange={e => {
+                  const input = e.target.value;
+                  filter({
+                    fullName: row => {
+                      const value = `${row.name.first} ${row.name.last}`;
+                      return ~value.indexOf(input.trim());
+                    }
+                  });
+                }}
+              />
+            );
+          }}
+          cell={row => (
+            <span><strong>{row.name.first}</strong> {row.name.last}</span>
+          )}
+        />
+        <Column
+          field="gender"
+          label="Gender"
+          filter={filter => (
+            <select
+              name="gender"
+              className="form-control"
+              onChange={e => {
+                const value = e.target.value;
+                filter({
+                  gender: row => {
+                    if (value === "") return true;
+                    return row.gender === value;
+                  }
+                });
+              }}
+            >
+              <option value="">All</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          )}
+        />
+        <Column label="Email" field="email" />
+        <Column label={false} cell={row => <button>Action</button>} />
+      </DataTable>
+    );
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById("root"));
 ```
 
 ## API
@@ -86,7 +121,6 @@ Property | Type | Description
 
 ## Todo
 
-- Column sorting
 - Pagination
 - Dynamic loading of data
 - Better docs
