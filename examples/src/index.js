@@ -75,6 +75,7 @@ class App extends React.Component {
                   const value = e.target.value;
                   filter({
                     gender: row => {
+                      if (value === '') return true;
                       return row.gender === value;
                     },
                   });

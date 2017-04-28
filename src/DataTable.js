@@ -9,6 +9,7 @@ class DataTable extends React.Component {
 
     this.state = {
       data: props.data,
+      displayData: props.data,
     };
 
     this.filterColumn = this.filterColumn.bind(this);
@@ -66,7 +67,7 @@ class DataTable extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.data !== this.props.data) {
       this.itemsPerPage = nextProps.data.length;
-      this.setState({data: nextProps.data});
+      this.setState({ data: nextProps.data, displayData: nextProps.data });
     }
   }
 
@@ -168,7 +169,7 @@ class DataTable extends React.Component {
                     name={col.filter || col.field}
                     onChange={e => {
                       const name = e.target.name, value = e.target.value;
-                      this.filterColumn({[name]: value});
+                      this.filterColumn({ [name]: value });
                     }}
                   />}
             </th>
@@ -185,9 +186,12 @@ class DataTable extends React.Component {
       return null;
     }
 
-    const numberOfItemsToDisplay = this.state.data.length < this.itemsPerPage
-      ? this.state.data.length
+    const numberOfItemsToDisplay = this.state.displayData.length <
+      this.itemsPerPage
+      ? this.state.displayData.length
       : this.itemsPerPage;
+
+    const data = this.state.displayData;
 
     for (let rowIdx = 0; rowIdx < numberOfItemsToDisplay; rowIdx++) {
       const cellElement = [];
@@ -198,18 +202,16 @@ class DataTable extends React.Component {
         cellElement.push(
           <td key={`col-${rowIdx}-${idx}`} className={col.cellClassName}>
             {typeof col.cell === 'function'
-              ? col.cell(this.state.data[rowIdx])
-              : col.field
-                  .split('.')
-                  .reduce((o, i) => o[i], this.state.data[rowIdx])}
-          </td>
+              ? col.cell(data[rowIdx])
+              : col.field.split('.').reduce((o, i) => o[i], data[rowIdx])}
+          </td>,
         );
       });
 
       rowElement.push(
         <tr key={`row-${rowIdx}`} className={rowClassName}>
           {cellElement}
-        </tr>
+        </tr>,
       );
     }
 
@@ -233,7 +235,7 @@ class DataTable extends React.Component {
 
   applyFilter() {
     console.log(this.filters);
-    const filteredData = this.props.data.filter(row => {
+    const filteredData = this.state.data.filter(row => {
       let includeItem = true;
       Object.keys(this.filters).forEach(field => {
         if (typeof this.filters[field] === 'function') {
@@ -257,7 +259,7 @@ class DataTable extends React.Component {
       return includeItem;
     });
 
-    this.setState({data: filteredData});
+    this.setState({ displayData: filteredData });
   }
 
   sortColumn(field) {
@@ -274,7 +276,7 @@ class DataTable extends React.Component {
     }
 
     // sort data
-    const sortedData = this.props.data.sort((a, b) => {
+    const sortedData = this.state.data.sort((a, b) => {
       const cellA = field.split('.').reduce((o, i) => o[i], a).toUpperCase();
       const cellB = field.split('.').reduce((o, i) => o[i], b).toUpperCase();
 
@@ -289,7 +291,8 @@ class DataTable extends React.Component {
       return 0;
     });
 
-    this.setState({data: sortedData});
+    this.setState({ data: sortedData });
+    this.applyFilter();
   }
 }
 

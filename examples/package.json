@@ -7,7 +7,7 @@
     "start": "webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "jpdelatorre <jp.delatorre@gmail.com> (http://jpdelatorre.com/)",
+  "author": "jpdelatorre (http://jpdelatorre.com/)",
   "license": "ISC",
   "devDependencies": {
     "babel-core": "^6.24.1",
